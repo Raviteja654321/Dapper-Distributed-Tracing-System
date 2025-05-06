@@ -1,0 +1,38 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Distributed Tracer</title>
+    <link rel="stylesheet" href="/static/css/styles.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Distributed Tracer</h1>
+            <nav>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/traces">Traces</a></li>
+                    <li><a href="/system">System Dashboard</a></li>
+                    <li><a href="/dependencies">Service Dependencies</a></li>
+                    <li><a href="/anomalies">Anomalies</a></li>
+                </ul>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container">
+        <h2>{{.Title}}</h2>
+        {{template "content" .Content}}
+    </main>
+
+    <footer>
+        <div class="container">
+            <p> &copy; 2025 Distributed Tracer</p>
+        </div>
+    </footer>
+</body>
+</html>
+{{end}}

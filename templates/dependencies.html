@@ -1,0 +1,43 @@
+{{define "content"}}
+<div class="dependencies">
+    <div class="service-graph">
+        <h3>Service Dependency Graph</h3>
+        {{if .Services}}
+            <div class="graph-placeholder">
+                <p>Service graph visualization would go here in a real implementation.</p>
+                <ul>
+                    {{range .Services}}
+                    <li>{{.}}</li>
+                    {{end}}
+                </ul>
+            </div>
+
+            <h4>Dependencies</h4>
+            <table>
+                <thead>
+                    <tr>
+                        <th>From Service</th>
+                        <th>To Service</th>
+                        <th>Call Count</th>
+                        <th>Avg Latency</th>
+                        <th>Error Rate</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{range .Dependencies}}
+                    <tr>
+                        <td>{{.FromService}}</td>
+                        <td>{{.ToService}}</td>
+                        <td>{{.CallCount}}</td>
+                        <td>{{.AvgLatency}}ms</td>
+                        <td>{{.ErrorRate}}%</td>
+                    </tr>
+                    {{end}}
+                </tbody>
+            </table>
+        {{else}}
+            <p>No service dependency data available.</p>
+        {{end}}
+    </div>
+</div>
+{{end}}

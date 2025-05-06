@@ -1,0 +1,8 @@
+go run collector/collector_main.go
+go run visualiser/visualizer_main.go
+go run services-c/service-c.go
+go run services-b/service-b.go --service-c=localhost:8002
+go run services-a/service-a.go --service-b=localhost:8001
+
+curl http://localhost:8000/api/v1/search?q=example
+curl http://localhost:8000/api/v1/process?data=test-data

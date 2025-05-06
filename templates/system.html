@@ -1,0 +1,40 @@
+{{define "content"}}
+<div class="system-dashboard">
+    <div class="collector-status card">
+        <h3>Collector Status</h3>
+        <div class="status-details">
+            <p><strong>Status:</strong> {{if .Status.Healthy}}Healthy{{else}}Unhealthy{{end}}</p>
+            <p><strong>Version:</strong> {{.Status.Version}}</p>
+            <p><strong>Uptime:</strong> {{.Status.UptimeSeconds}} seconds</p>
+            <p><strong>Collected Spans:</strong> {{.Status.CollectedSpans}}</p>
+            <p><strong>Collected Traces:</strong> {{.Status.CollectedTraces}}</p>
+        </div>
+    </div>
+
+    <div class="performance-metrics card">
+        <h3>Performance Metrics</h3>
+        {{if .PerformanceReport}}
+            <div class="metric">
+                <h4>Average Response Time</h4>
+                <div class="chart-placeholder">
+                    {{.PerformanceReport.AvgResponseTime}}ms
+                </div>
+            </div>
+            <div class="metric">
+                <h4>Error Rate</h4>
+                <div class="chart-placeholder">
+                    {{.PerformanceReport.ErrorRate}}%
+                </div>
+            </div>
+            <div class="metric">
+                <h4>Throughput</h4>
+                <div class="chart-placeholder">
+                    {{.PerformanceReport.Throughput}} req/min
+                </div>
+            </div>
+        {{else}}
+            <p>No performance data available.</p>
+        {{end}}
+    </div>
+</div>
+{{end}}

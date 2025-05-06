@@ -1,0 +1,80 @@
+{{define "content"}}
+<div class="trace-details">
+    <div class="trace-header">
+        <h3>Trace: {{.Trace.TraceId}}</h3>
+        <p><strong>Root Operation:</strong> {{.Trace.RootOperation}}</p>
+        <p><strong>Duration:</strong> {{.Trace.Duration}}ms</p>
+        <p><strong>Start Time:</strong> {{.Trace.StartTime}}</p>
+        <p><strong>Status:</strong> 
+            {{if eq .Trace.Status 0}}OK{{else if eq .Trace.Status 1}}ERROR{{else if eq .Trace.Status 2}}TIMEOUT{{else}}UNKNOWN{{end}}
+        </p>
+    </div>
+
+    <!-- <div class="trace-visualization">
+        <h4>Timeline</h4>
+        <div class="timeline">
+            {{range .Trace.Spans}}
+            <div class="span" style="left: {{.Position}}%; width: {{.Width}}%;">
+                <div class="span-inner {{if eq .Status 1}}error{{end}}">
+                    {{.ServiceName}}: {{.OperationName}}
+                </div>
+            </div>
+            {{end}}
+        </div>
+    </div>     -->
+    
+
+    <div class="span-list">
+        <h4>Spans</h4>
+        <table>
+            <thead>
+                <tr>
+                    <th>Service</th>
+                    <th>Operation</th>
+                    <th>Duration</th>
+                    <th>Start Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Trace.Spans}}
+                <tr class="{{if eq .Status 1}}error{{end}}">
+                    <td>{{.ServiceName}}</td>
+                    <td>{{.OperationName}}</td>
+                    <td>{{spanDuration .}}ms</td>
+                    <td>{{.StartTime}}</td>
+                    <td>
+                        {{if eq .Status 0}}OK{{else if eq .Status 1}}ERROR{{else if eq .Status 2}}TIMEOUT{{else}}UNKNOWN{{end}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="critical-path">
+        <h4>Critical Path</h4>
+        <ol>
+            {{range .CriticalPath}}
+            <li>{{.ServiceName}}: {{.OperationName}} ({{spanDuration .}}ms)</li>
+            {{end}}
+        </ol>
+    </div>
+
+    <div class="bottlenecks">
+        <h4>Detected Bottlenecks</h4>
+        {{if .Bottlenecks}}
+        <ul>
+            {{range .Bottlenecks}}
+            <li>
+                <strong>{{.ServiceName}}: {{.OperationName}}</strong> - 
+                {{.Duration}}ms ({{.Percentage}}% of trace)
+            </li>
+            {{end}}
+        </ul>
+        {{else}}
+        <p>No significant bottlenecks detected.</p>
+        {{end}}
+    </div>
+</div>
+{{end}}

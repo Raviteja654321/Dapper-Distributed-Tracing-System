@@ -1,0 +1,36 @@
+{{define "content"}}
+<div class="anomalies">
+    <h3>Detected Anomalies</h3>
+    
+    {{if .}}
+        <table>
+            <thead>
+                <tr>
+                    <th>Type</th>
+                    <th>Service</th>
+                    <th>Operation</th>
+                    <th>Severity</th>
+                    <th>Description</th>
+                    <th>Trace</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .}}
+                <tr class="severity-{{.Severity}}">
+                    <td>{{.Type}}</td>
+                    <td>{{.ServiceName}}</td>
+                    <td>{{.OperationName}}</td>
+                    <td>{{.Severity}}</td>
+                    <td>{{.Description}}</td>
+                    <td>
+                        <a href="/traces/{{.TraceId}}">View Trace</a>
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+    {{else}}
+        <p>No anomalies detected.</p>
+    {{end}}
+</div>
+{{end}}

@@ -1,0 +1,230 @@
+syntax = "proto3";
+
+package tracer;
+option go_package = "github.com/sriharib128/distributed-tracer";
+
+import "google/protobuf/timestamp.proto";
+
+// Status of spans/traces
+enum Status {
+  STATUS_UNSPECIFIED = 0;
+  STATUS_OK = 1;
+  STATUS_ERROR = 2;
+  STATUS_TIMEOUT = 3;
+}
+
+// Vector clock for causal ordering
+message VectorClock {
+  map<string, uint64> timestamps = 1;
+}
+
+// Span represents a single operation within a trace
+message Span {
+  string span_id = 1;
+  string trace_id = 2;
+  string parent_span_id = 3;
+  string service_name = 4;
+  string operation_name = 5;
+  google.protobuf.Timestamp start_time = 6;
+  google.protobuf.Timestamp end_time = 7;
+  map<string, string> annotations = 8;
+  Status status = 9;
+  VectorClock vector_clock = 10;
+  string node_id = 11;
+}
+
+// Collection of spans forming a complete trace
+message Trace {
+  string trace_id = 1;
+  repeated Span spans = 2;
+  google.protobuf.Timestamp start_time = 3;
+  google.protobuf.Timestamp end_time = 4;
+  string root_service = 5;
+  string root_operation = 6;
+}
+
+// Filter criteria for listing traces
+message FilterCriteria {
+  google.protobuf.Timestamp start_time = 1;
+  google.protobuf.Timestamp end_time = 2;
+  repeated string services = 3;
+  Status status = 4;
+  string operation_name = 5;
+  int32 limit = 6;
+  int32 offset = 7;
+}
+
+// Request to collect a span
+message CollectSpanRequest {
+  Span span = 1;
+}
+
+// Response to collect span
+message CollectSpanResponse {
+  bool success = 1;
+}
+
+// Request to get a trace
+message GetTraceRequest {
+  string trace_id = 1;
+}
+
+// Response with trace data
+message GetTraceResponse {
+  Trace trace = 1;
+}
+
+// Request to list traces
+message ListTracesRequest {
+  FilterCriteria filter = 1;
+}
+
+// Response with trace list
+message ListTracesResponse {
+  repeated Trace traces = 1;
+  int32 total_count = 2;
+}
+
+// Request for collector status
+message GetCollectorStatusRequest {}
+
+// Response with collector status
+message GetCollectorStatusResponse {
+  bool healthy = 1;
+  int32 spans_processed = 2;
+  int32 traces_stored = 3;
+  google.protobuf.Timestamp up_since = 4;
+  int32 queue_depth = 5;
+}
+
+// Request to replicate spans
+message ReplicateSpansRequest {
+  repeated Span spans = 1;
+  string collector_id = 2;
+}
+
+// Response to replication request
+message ReplicateSpansResponse {
+  bool success = 1;
+  repeated string failed_span_ids = 2;
+}
+
+// Clock synchronization request
+message SyncClockRequest {
+  google.protobuf.Timestamp local_time = 1;
+  string node_id = 2;
+}
+
+// Clock synchronization response
+message SyncClockResponse {
+  google.protobuf.Timestamp collector_time = 1;
+  int64 estimated_drift_ms = 2;
+}
+
+// Collector service definition
+service CollectorService {
+  // Collect a single span
+  rpc CollectSpan(CollectSpanRequest) returns (CollectSpanResponse) {}
+  
+  // Get a complete trace by ID
+  rpc GetTrace(GetTraceRequest) returns (GetTraceResponse) {}
+  
+  // List traces with filtering
+  rpc ListTraces(ListTracesRequest) returns (ListTracesResponse) {}
+  
+  // Get collector health status
+  rpc GetCollectorStatus(GetCollectorStatusRequest) returns (GetCollectorStatusResponse) {}
+  
+  // Replicate spans between collectors
+  rpc ReplicateSpans(ReplicateSpansRequest) returns (ReplicateSpansResponse) {}
+  
+  // Synchronize clocks
+  rpc SyncClock(SyncClockRequest) returns (SyncClockResponse) {}
+}
+
+// Service A - API Gateway
+service ServiceA {
+  // Handles a hello request
+  rpc SayHello(HelloRequest) returns (HelloResponse) {}
+}
+
+message HelloRequest {
+  string name = 1;
+}
+
+message HelloResponse {
+  string message = 1;
+}
+
+// Service B - Business Logic
+service ServiceB {
+  // Handles search operations
+  rpc Search(SearchRequest) returns (SearchResponse) {}
+  
+  // Handles data processing
+  rpc Process(ProcessRequest) returns (ProcessResponse) {}
+  
+  // Forwards hello requests to Service C
+  rpc ForwardHello(ForwardHelloRequest) returns (ForwardHelloResponse) {}
+}
+
+message SearchRequest {
+  string query = 1;
+}
+
+message SearchResponse {
+  int32 results = 1;
+}
+
+message ProcessRequest {
+  string data = 1;
+}
+
+message ProcessResponse {
+  string status = 1;
+}
+
+message ForwardHelloRequest {
+  string name = 1;
+}
+
+message ForwardHelloResponse {
+  string message = 1;
+}
+
+// Service C - Data Service
+service ServiceC {
+  // Queries the database
+  rpc QueryDatabase(QueryDatabaseRequest) returns (QueryDatabaseResponse) {}
+  
+  // Stores data
+  rpc StoreData(StoreDataRequest) returns (StoreDataResponse) {}
+  
+  // Greets a user
+  rpc Greet(GreetRequest) returns (GreetResponse) {}
+}
+
+message QueryDatabaseRequest {
+  string query = 1;
+  string type = 2;
+}
+
+message QueryDatabaseResponse {
+  int32 results = 1;
+}
+
+message StoreDataRequest {
+  string data = 1;
+}
+
+message StoreDataResponse {
+  string status = 1;
+}
+
+message GreetRequest {
+  string name = 1;
+}
+
+message GreetResponse {
+  string greeting = 1;
+}

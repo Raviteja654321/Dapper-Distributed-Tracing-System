@@ -1,0 +1,71 @@
+{{define "content"}}
+<div class="filters">
+    <form action="/traces" method="get">
+        <div class="form-row">
+            <div class="form-group">
+                <label for="service">Service:</label>
+                <input type="text" id="service" name="service" value="{{.Service}}">
+            </div>
+            <div class="form-group">
+                <label for="operation">Operation:</label>
+                <input type="text" id="operation" name="operation" value="{{.Operation}}">
+            </div>
+            <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" name="status">
+                    <option value="">All</option>
+                    <option value="error" {{if eq .Status "error"}}selected{{end}}>Error</option>
+                    <option value="timeout" {{if eq .Status "timeout"}}selected{{end}}>Timeout</option>
+                </select>
+            </div>
+            <button type="submit" class="button">Filter</button>
+        </div>
+    </form>
+</div>
+
+<div class="trace-list">
+    <h3>Traces ({{.TotalCount}} total)</h3>
+    
+    {{if .Traces}}
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Root Operation</th>
+                    <th>Services</th>
+                    <th>Duration</th>
+                    <th>Start Time</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {{range .Traces}}
+                <tr>
+                    <td><a href="/traces/{{.TraceId}}">{{.TraceId}}</a></td>
+                    <td>{{.RootOperation}}</td>
+                    <td>{{len (.Spans)}}</td>
+                    <td>{{if .StartTime}}{{.EndTime.Seconds}}.{{.EndTime.Nanos}} - {{.StartTime.Seconds}}.{{.StartTime.Nanos}}{{else}}N/A{{end}}ms</td>
+                    <td>{{.StartTime}}</td>
+                    <td class="{{if eq .Status 1}}error{{end}}">
+                        {{if eq .Status 0}}OK{{else if eq .Status 1}}ERROR{{else if eq .Status 2}}TIMEOUT{{else}}UNKNOWN{{end}}
+                    </td>
+                </tr>
+                {{end}}
+            </tbody>
+        </table>
+
+        <!-- Pagination -->
+        <div class="pagination">
+            {{if gt .Offset 0}}
+            <a href="/traces?limit={{.Limit}}&offset={{subtract .Offset .Limit}}&service={{.Service}}&operation={{.Operation}}&status={{.Status}}" class="button">Previous</a>
+            {{end}}
+            
+            {{if lt (add .Offset .Limit) .TotalCount}}
+            <a href="/traces?limit={{.Limit}}&offset={{add .Offset .Limit}}&service={{.Service}}&operation={{.Operation}}&status={{.Status}}" class="button">Next</a>
+            {{end}}
+        </div>
+    {{else}}
+        <p>No traces found matching your criteria.</p>
+    {{end}}
+</div>
+{{end}}

@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Traces Interface</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --secondary: #64748b;
+            --success: #10b981;
+            --error: #ef4444;
+            --light-bg: #f1f5f9;
+            --card-bg: #ffffff;
+            --border-color: #e2e8f0;
+        }
+        
+        body {
+            background-color: var(--light-bg);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+        
+        .card {
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            border: none;
+            margin-bottom: 2rem;
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.08);
+        }
+        
+        .card-header {
+            background-color: transparent;
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.5rem;
+        }
+        
+        .app-title {
+            margin: 0;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 1.75rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .app-title i {
+            color: var(--primary);
+            margin-right: 0.75rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+
+        .form-control, .form-select {
+            border-radius: 0.5rem;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+        
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            border: none;
+            border-radius: 0.5rem;
+            padding: 0.75rem 1.5rem;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+            transform: translateY(-2px);
+        }
+        
+        .filter-form {
+            background-color: var(--card-bg);
+            border-radius: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .table {
+            margin-bottom: 0;
+        }
+        
+        .table thead th {
+            background-color: #f8fafc;
+            color: var(--secondary);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .table tbody td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border-color);
+            vertical-align: middle;
+        }
+        
+        .table tbody tr:hover {
+            background-color: #f8fafc;
+        }
+        
+        .table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .trace-link {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .trace-link:hover {
+            color: var(--primary-hover);
+        }
+        
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 0.35rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .status-success {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        
+        .status-failed {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--error);
+        }
+        
+        .empty-state {
+            padding: 3rem;
+            text-align: center;
+            color: var(--secondary);
+        }
+        
+        .icon-container {
+            width: 32px;
+            height: 32px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 0.5rem;
+            margin-right: 0.5rem;
+        }
+        
+        .service-chip {
+            background-color: #e0f2fe;
+            color: #0369a1;
+            border-radius: 9999px;
+            padding: 0.25rem 0.5rem;
+            font-size: 0.75rem;
+            margin-right: 0.25rem;
+            white-space: nowrap;
+        }
+        
+        .service-count {
+            display: flex;
+            align-items: center;
+        }
+        
+        .duration-cell {
+            font-family: monospace;
+            font-weight: 500;
+        }
+        
+        /* Animation for filter changes */
+        .fade-enter {
+            opacity: 0;
+        }
+        
+        .fade-enter-active {
+            opacity: 1;
+            transition: opacity 0.3s;
+        }
+        
+        .btn-clear {
+            border: 1px solid var(--border-color);
+            background: white;
+            color: var(--secondary);
+        }
+        
+        .btn-clear:hover {
+            background: #f8fafc;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .app-container {
+                padding: 1rem;
+            }
+            
+            .filter-row {
+                flex-direction: column;
+            }
+            
+            .filter-row > div {
+                margin-bottom: 1rem;
+            }
+            
+            .action-buttons {
+                display: flex;
+                width: 100%;
+            }
+            
+            .action-buttons .btn {
+                flex: 1;
+            }
+            
+            .table-responsive {
+                border-radius: 0.75rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <div class="card">
+            <div class="card-header">
+                <h1 class="app-title">
+                    <i class="fas fa-network-wired"></i>
+                    Traces Interface
+                </h1>
+            </div>
+            <div class="card-body">
+                <form id="filter-form" method="get" class="mb-4">
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label for="service" class="form-label">Service</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="fas fa-server text-secondary"></i>
+                                </span>
+                                <input type="text" id="service" name="service" class="form-control" placeholder="Filter by service" value="{{ request.args.get('service', '') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="operation" class="form-label">Operation</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-white">
+                                    <i class="fas fa-code-branch text-secondary"></i>
+                                </span>
+                                <input type="text" id="operation" name="operation" class="form-control" placeholder="Filter by operation" value="{{ request.args.get('operation', '') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="status" class="form-label">Status</label>
+                            <select id="status" name="status" class="form-select">
+                                <option value="">All Statuses</option>
+                                <option value="1" {% if request.args.get('status') == "1" %}selected{% endif %}>Success</option>
+                                <option value="0" {% if request.args.get('status') == "0" %}selected{% endif %}>Failed</option>
+                            </select>
+                        </div>
+                        <div class="col-md-4 d-flex gap-2">
+                            <button type="submit" class="btn btn-primary flex-grow-1">
+                                <i class="fas fa-filter me-1"></i> Apply Filters
+                            </button>
+                            <button type="button" id="clear-filters" class="btn btn-clear">
+                                <i class="fas fa-times me-1"></i> Clear
+                            </button>
+                        </div>
+                    </div>
+                </form>
+                
+                <div id="results-container" class="table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>TRACE ID</th>
+                                <th>ROOT OPERATION</th>
+                                <th>SERVICES</th>
+                                <th>DURATION</th>
+                                <th>START TIME</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="traces-body">
+                            {% for trace in traces %}
+                            <tr>
+                                <td><a href="#" class="trace-link">{{ trace.trace_id }}</a></td>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="icon-container bg-blue-50">
+                                            <i class="fas fa-code-branch text-primary"></i>
+                                        </div>
+                                        {{ trace.root_operation }}
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="service-count">
+                                        <span class="service-chip">{{ trace.services_count }} services</span>
+                                    </div>
+                                </td>
+                                <td class="duration-cell">{{ trace.duration }} ms</td>
+                                <td>{{ trace.start_time }}</td>
+                                <td>
+                                    {% if trace.status == 'Success' %}
+                                    <span class="status-badge status-success">
+                                        <i class="fas fa-check-circle me-1"></i> Success
+                                    </span>
+                                    {% else %}
+                                    <span class="status-badge status-failed">
+                                        <i class="fas fa-times-circle me-1"></i> Failed
+                                    </span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                            {% if not traces %}
+                            <tr>
+                                <td colspan="6">
+                                    <div class="empty-state">
+                                        <i class="fas fa-search fa-3x mb-3"></i>
+                                        <h3>No traces found</h3>
+                                        <p>Try adjusting your filter criteria or clear filters to see all traces.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/js/bootstrap.bundle.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            // Handle clear filters button
+            $('#clear-filters').click(function() {
+                $('#service').val('');
+                $('#operation').val('');
+                $('#status').val('');
+                $('#filter-form').submit();
+            });
+            
+            // Add smooth transition when filtering
+            $('#filter-form').on('submit', function() {
+                $('#results-container').css('opacity', '0.5');
+                setTimeout(function() {
+                    $('#results-container').css('opacity', '1');
+                }, 300);
+            });
+            
+            // Highlight row on hover
+            $('tbody tr').hover(
+                function() { $(this).addClass('bg-light'); },
+                function() { $(this).removeClass('bg-light'); }
+            );
+            
+            // Make trace ID clickable
+            $('.trace-link').click(function(e) {
+                e.preventDefault();
+                
+                // Add animation when clicking on a trace
+                const traceId = $(this).text();
+                alert('Viewing details for trace: ' + traceId);
+            });
+        });
+    </script>
+</body>
+</html>
